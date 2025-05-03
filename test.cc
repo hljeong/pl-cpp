@@ -1,5 +1,9 @@
+#include "lib/cpp_utils/cpy/cpy.h"
+#include "lib/cpp_utils/fmt/fmt.h"
 #include "nfa.h"
 
+using namespace cpy;
+using namespace fmt;
 using namespace nfa;
 
 int main() {
