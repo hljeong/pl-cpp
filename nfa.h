@@ -32,9 +32,7 @@ public:
 
   bool operator<(const Symbol &other) const;
 
-  // todo: move it back here, does not need to be a specialization of fmt::repr
-  // (see Nfa::repr)
-  friend std::string fmt::repr<>(const Symbol &value);
+  friend String repr(const Symbol &value);
 
 private:
   std::optional<Epsilon> e{std::nullopt};
@@ -55,6 +53,14 @@ inline bool Symbol::operator<(const Symbol &other) const {
   }
 }
 
+// todo: defining casting to std::optional<T> and then defineing is<T>() to be
+// static_cast<std::optional<T>>(*this).has_value() doesnt work. static_cast-ing
+// outside also shows has_value() is true -- why?
+inline String repr(const Symbol &value) {
+  return value.is<Symbol::Epsilon>() ? "nfa::Symbol::Epsilon"
+                                     : fmt::repr(static_cast<char>(value));
+}
+
 class Nfa {
 public:
   class State {
@@ -65,7 +71,9 @@ public:
 
     bool operator==(State other) const { return id == other.id; }
 
-    friend String fmt::repr<>(const nfa::Nfa::State &value);
+    inline friend String repr(const State &value) {
+      return format("q{}", value.id);
+    }
 
   private:
     static uint next_id;
@@ -229,15 +237,3 @@ private:
 };
 
 } // namespace nfa
-
-// todo: defining casting to std::optional<T> and then defineing is<T>() to be
-// static_cast<std::optional<T>>(*this).has_value() doesnt work. static_cast-ing
-// outside also shows has_value() is true -- why?
-template <> inline std::string fmt::repr(const nfa::Symbol &value) {
-  return value.is<nfa::Symbol::Epsilon>() ? "nfa::Symbol::Epsilon"
-                                          : repr(static_cast<char>(value));
-}
-
-template <> inline std::string fmt::repr(const nfa::Nfa::State &value) {
-  return format("q{}", value.id);
-}
