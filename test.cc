@@ -7,10 +7,10 @@ using namespace fmt;
 using namespace nfa;
 
 int main() {
-  Nfa::Alphabet Sigma{'a', 'b'};
+  Nfa::Alphabet S{'a', 'b'};
   Nfa::State q0, q1;
-  Nfa n1{{q0}, q0, Sigma, {{q0, {{'a', {q0}}}}}, {q0}};
-  Nfa n2{{q1}, q1, Sigma, {{q1, {{'b', {q1}}}}}, {q1}};
+  Nfa n1{{q0}, q0, S, {{q0, {{'a', {q0}}}}}, {q0}};
+  Nfa n2{{q1}, q1, S, {{q1, {{'b', {q1}}}}}, {q1}};
   Nfa n3 = n1 + n2;
   Nfa n4 = n1 | n2;
   Nfa n5 = *(n1 + n2);
