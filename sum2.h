@@ -181,10 +181,8 @@ inline Whatever::Store::~Store() {};
 template <typename T>
 inline const String Whatever::Concrete<T>::type_name = ::type_name<T>;
 
-template <typename... Ts> struct OneOf {
-  Whatever store;
-  size_t which;
-
+template <typename... Ts> class OneOf {
+public:
   template <typename T, size_t I = index<T, Ts...>>
   OneOf(const T &value) : store{value}, which{I} {}
 
@@ -197,6 +195,10 @@ template <typename... Ts> struct OneOf {
   }
 
   String repr() const { return store.repr(); }
+
+private:
+  Whatever store;
+  size_t which;
 };
 
 } // namespace sum
