@@ -1,17 +1,8 @@
-// #include "lib/cpp_utils/cpy/cpy.h"
-// #include "lib/cpp_utils/fmt/fmt.h"
 #include "nfa.h"
 
-// using namespace cpy;
-// using namespace fmt;
 // using namespace nfa;
 
-// #include <variant>
-
 #include "regex.h"
-// #include "sum.h"
-#include "sum2.h"
-// using namespace sum;
 
 struct Nil {};
 struct Cons;

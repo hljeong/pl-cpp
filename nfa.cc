@@ -1,9 +1,7 @@
 #include "nfa.h"
-#include "lib/cpp_utils/cpy/cpy.h"
-#include "lib/cpp_utils/fmt/fmt.h"
+#include "lib/cpp_utils/hlj/hlj.h"
 
-using namespace cpy;
-using namespace fmt;
+using namespace hlj;
 using namespace nfa;
 
 uint Nfa::State::next_id = 0;
@@ -25,7 +23,7 @@ bool Symbol::operator<(const Symbol &other) const {
 // outside also shows has_value() is true -- why?
 String nfa::repr(const Symbol &value) {
   return value.is<Symbol::Epsilon>() ? "nfa::Symbol::Epsilon"
-                                     : fmt::repr(static_cast<char>(value));
+                                     : ::repr(static_cast<char>(value));
 }
 
 String nfa::repr(const Nfa::State &value) { return format("q{}", value.id); }
@@ -102,8 +100,8 @@ Nfa Nfa::operator|(const Nfa &other) const {
   assert(disjoint(Q, Q_));
 
   Nfa::State q0__;
-  return {combine<TQ>({q0__}, Q, Q_), q0__, combine(S, S_),
-          combine<Td>({{q0__, {{Symbol::epsilon, {q0, q0_}}}}}, d, d_),
+  return {combine(TQ{q0__}, Q, Q_), q0__, combine(S, S_),
+          combine(Td{{q0__, {{Symbol::epsilon, {q0, q0_}}}}}, d, d_),
           combine(F, F_)};
 }
 
@@ -116,7 +114,7 @@ Nfa Nfa::operator*() const {
     d_[state][Symbol::epsilon].insert(q0);
   }
 
-  return {combine(Q, {q0_}), q0_, S, d_, combine(F, {q0_})};
+  return {combine(Q, TQ{q0_}), q0_, S, d_, combine(F, TF{q0_})};
 }
 
 String nfa::repr(const Nfa &value) {
