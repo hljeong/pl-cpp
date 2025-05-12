@@ -11,24 +11,12 @@
 
 namespace nfa {
 
-// poor man's sum type
-class Symbol {
-public:
-  static constexpr struct Epsilon {
-  } epsilon{};
+using namespace hlj;
 
-  Symbol(Epsilon e_) : e(e_) {}
-  Symbol(char c_) : c(c_) {}
-  operator Epsilon() const { return *e; }
-  operator char() const { return *c; }
-  template <typename T> bool is() const;
-  bool operator<(const Symbol &other) const;
-  friend std::string repr(const Symbol &value);
+static constexpr struct Epsilon {
+} epsilon;
 
-private:
-  std::optional<Epsilon> e{std::nullopt};
-  std::optional<char> c{std::nullopt};
-};
+using Symbol = OneOf<Epsilon, char>;
 
 class Nfa {
 public:
@@ -37,36 +25,36 @@ public:
     State() : id(next_id++) {}
     bool operator<(State other) const { return id < other.id; }
     bool operator==(State other) const { return id == other.id; }
-    friend std::string repr(const State &value);
+    inline String repr() const { return format("q{}", id); }
 
   private:
     static uint next_id;
     uint id;
   };
 
-  using Alphabet = std::set<char>;
-  using StateTransition = std::map<Symbol, std::set<State>>;
-  using Transition = std::map<State, StateTransition>;
+  using Alphabet = Set<char>;
+  using StateTransition = Map<Symbol, Set<State>>;
+  using Transition = Map<State, StateTransition>;
 
-  using TQ = std::set<State>;
+  using TQ = Set<State>;
   using Tq0 = State;
   using TS = Alphabet;
   using Td = Transition;
-  using TF = std::set<State>;
+  using TF = Set<State>;
 
-  using CTQr = const std::set<State> &;
-  using CTq0r = const State &;
-  using CTSr = const Alphabet &;
-  using CTdr = const Transition &;
-  using CTFr = const std::set<State> &;
+  using CTQr = const TQ &;
+  using CTq0r = const Tq0 &;
+  using CTSr = const TS &;
+  using CTdr = const Td &;
+  using CTFr = const TF &;
 
   Nfa(CTQr Q_, CTq0r q0_, CTSr S_, CTdr d_, CTFr F_);
-  bool accepts(const std::string &s) const;
-  operator std::tuple<CTQr, CTq0r, CTSr, CTdr, CTFr>() const;
+  bool accepts(const String &s) const;
+  operator Tuple<CTQr, CTq0r, CTSr, CTdr, CTFr>() const;
   Nfa operator+(const Nfa &other) const;
   Nfa operator|(const Nfa &other) const;
   Nfa operator*() const;
-  friend std::string repr(const Nfa &value);
+  String repr(const Nfa &value);
 
 private:
   TQ Q;
@@ -75,11 +63,7 @@ private:
   Td d;
   TF F;
 
-  std::set<State> reachable(std::set<State> states) const;
+  Set<State> reachable(Set<State> states) const;
 };
-
-std::string repr(const Symbol &value);
-std::string repr(const Nfa::State &value);
-std::string repr(const Nfa &value);
 
 } // namespace nfa
