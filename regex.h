@@ -11,7 +11,7 @@ struct Asterisk {};
 struct LParenthesis {};
 struct RParenthesis {};
 
-struct Token : OneOf<Pipe, Asterisk, LParenthesis, RParenthesis, char> {};
+using Token = OneOf<Pipe, Asterisk, LParenthesis, RParenthesis, char>;
 
 inline String repr(const Pipe &value) { return "'|'"; }
 inline String repr(const Asterisk &value) { return "'*'"; }
@@ -57,25 +57,15 @@ inline TokenStream lex(const String &source) {
 }
 
 struct Regex;
-struct UnionExpr;
-struct ConcatExpr;
-struct RepeatExpr;
-struct BaseExpr;
 struct Quantifier {};
-
 struct UnionExpr0;
-struct UnionExpr1;
 struct ConcatExpr0;
-struct ConcatExpr1;
 struct RepeatExpr0;
-struct RepeatExpr1;
-struct BaseExpr0;
-struct BaseExpr1;
 
-struct BaseExpr : OneOf<BaseExpr0, BaseExpr1> {};
-struct RepeatExpr : OneOf<RepeatExpr0, RepeatExpr1> {};
-struct ConcatExpr : OneOf<ConcatExpr0, ConcatExpr1> {};
-struct UnionExpr : OneOf<UnionExpr0, UnionExpr1> {};
+using BaseExpr = OneOf<Regex, char>;
+using RepeatExpr = OneOf<RepeatExpr0, BaseExpr>;
+using ConcatExpr = OneOf<ConcatExpr0, RepeatExpr>;
+using UnionExpr = OneOf<UnionExpr0, ConcatExpr>;
 
 struct Regex {
   UnionExpr expr;
@@ -86,17 +76,9 @@ struct UnionExpr0 {
   UnionExpr rest;
 };
 
-struct UnionExpr1 {
-  ConcatExpr expr;
-};
-
 struct ConcatExpr0 {
   RepeatExpr first;
   ConcatExpr rest;
-};
-
-struct ConcatExpr1 {
-  RepeatExpr expr;
 };
 
 struct RepeatExpr0 {
@@ -104,19 +86,7 @@ struct RepeatExpr0 {
   Quantifier quantifier;
 };
 
-struct RepeatExpr1 {
-  BaseExpr expr;
-};
-
-struct BaseExpr0 {
-  Regex regex;
-};
-
-struct BaseExpr1 {
-  char c;
-};
-
-constexpr struct Error {
+static constexpr struct Error {
 } error;
 
 template <typename T> struct Result : OneOf<Error, T> {
@@ -212,7 +182,6 @@ inline Result<Regex> Parser::parse_regex() {
     return error;
   }
   return Regex{*expr};
-  // return Regex{expr.as<UnionExpr>()};
 }
 
 inline Result<UnionExpr> Parser::parse_union_expr() {
@@ -222,7 +191,7 @@ inline Result<UnionExpr> Parser::parse_union_expr() {
   }
 
   if (!expect<Pipe>()) {
-    return UnionExpr{UnionExpr1{*first}};
+    return UnionExpr{*first};
   }
 
   auto rest = parse_union_expr();
@@ -230,7 +199,7 @@ inline Result<UnionExpr> Parser::parse_union_expr() {
     return error;
   }
 
-  return UnionExpr{UnionExpr0{*first, *rest}};
+  return {UnionExpr0{*first, *rest}};
 }
 
 inline Result<ConcatExpr> Parser::parse_concat_expr() {
@@ -240,8 +209,7 @@ inline Result<ConcatExpr> Parser::parse_concat_expr() {
   }
 
   auto rest = parse_concat_expr();
-  return rest ? ConcatExpr{ConcatExpr0{*first, *rest}}
-              : ConcatExpr{ConcatExpr1{*first}};
+  return rest ? ConcatExpr{ConcatExpr0{*first, *rest}} : ConcatExpr{*first};
 }
 
 inline Result<RepeatExpr> Parser::parse_repeat_expr() {
@@ -251,7 +219,7 @@ inline Result<RepeatExpr> Parser::parse_repeat_expr() {
   }
 
   return expect<Asterisk>() ? RepeatExpr{RepeatExpr0{*expr}}
-                            : RepeatExpr{RepeatExpr1{*expr}};
+                            : RepeatExpr{*expr};
 }
 
 inline Result<BaseExpr> Parser::parse_base_expr() {
@@ -263,13 +231,13 @@ inline Result<BaseExpr> Parser::parse_base_expr() {
       return error;
     }
     checkpoint.discard();
-    return BaseExpr{BaseExpr0{*regex}};
+    return {*regex};
   } else {
     auto token = expect<char>();
     if (!token) {
       return error;
     }
     checkpoint.discard();
-    return BaseExpr{BaseExpr1{*token}};
+    return {*token};
   }
 }
