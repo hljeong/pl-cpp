@@ -63,10 +63,10 @@ struct Choice2 {
 
 int main() {
   ns::S s{ns::Choice1{1, ns::Choice2{2}}};
-  printo(s);
+  print(s);
 
   // S s = Choice1{1, Choice2{2}};
-  // printo(T{S{}});
+  // print(T{S{}});
 
   // Nfa::Alphabet S{'a', 'b'};
   // Nfa::State q0, q1;
@@ -131,7 +131,7 @@ int main() {
   //       print("n{}.accepts({}) => {} (expected: {})", idx + 1, repr(s),
   //       result,
   //             expected);
-  //       printo(nfa);
+  //       print(nfa);
   //       return 1;
   //     }
   //   }
@@ -140,17 +140,17 @@ int main() {
   // using namespace sum;
   // OneOf<int, char> x = 3;
   // OneOf<int, char> y = 'h';
-  // printo(x.is<int>(), x.is<char>());
-  // printo(y.is<int>(), y.is<char>());
-  // printo(x.as<int>(), y.as<char>());
-  // printo(x);
+  // print(x.is<int>(), x.is<char>());
+  // print(y.is<int>(), y.is<char>());
+  // print(x.as<int>(), y.as<char>());
+  // print(x);
 
   // Lispt l1{Cons{3, Nil{}}};
   // print("start print");
-  // printo(l1);
+  // print(l1);
 
   Lispt l{Cons{1, Cons{2, Nil{}}}};
-  printo(l);
+  print(l);
   // OneOf<OneOf<int, char>, bool> x = OneOf<int, char>{1};
   // OneOf<int> x = 3;
   // OneOf<int> y = std::move(x);
@@ -158,27 +158,27 @@ int main() {
   // print("done");
 
   Whatever x = 3;
-  printo(x);
+  print(x);
 
   x = 'c';
-  printo(x);
+  print(x);
 
   x = String{"hi"};
-  printo(x);
+  print(x);
 
   Whatever y = std::move(x);
-  printo(x, y);
+  print(x, y);
 
   x = Whatever{y};
-  printo(x);
+  print(x);
 
   Whatever z;
-  printo(z);
+  print(z);
 
-  printo(x.as<String>());
+  print(x.as<String>());
 
   x = 3;
-  printo(x.as<int>());
+  print(x.as<int>());
 
   // struct B {
   //   B(int) {}
@@ -192,11 +192,14 @@ int main() {
   // struct S : OneOf<int, char> {};
   //
   // S sx = {3};
-  // printo(sx.as<int>());
+  // print(sx.as<int>());
 
-  // printo(x, y);
-  // printo(y.OneOf<char>::is_T);
-  // printo(std::is_same_v<decltype(repr(std::declval<char>())), String>);
-  // printo(type_name<decltype(repr(std::declval<char>()))>, reprable<char>);
-  printo(lex("(a*b*)"));
+  // print(x, y);
+  // print(y.OneOf<char>::is_T);
+  // print(std::is_same_v<decltype(repr(std::declval<char>())), String>);
+  // print(type_name<decltype(repr(std::declval<char>()))>, reprable<char>);
+  String source = "(a*b*)|(ab*)";
+  auto token_stream = lex(source);
+  print(token_stream);
+  print(parse(token_stream));
 }
